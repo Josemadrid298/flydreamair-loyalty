@@ -24,7 +24,17 @@ def show():
         emoji = "✅" if tier == current else "🔒"
         st.write(f"{emoji} **{tier}** — {info['benefits']}")
 
-    st.progress(min(user.get("points", 0) / 100000, 1.0))
-    st.caption("Progress toward Platinum")
+    # progress is measured against the *next* tier, not always Platinum
+    next_tier = {"Bronze": "Silver", "Silver": "Gold", "Gold": "Platinum", "Platinum": None}.get(current)
+    points = user.get("points", 0)
+    if next_tier:
+        target = tiers[next_tier]["min"]
+        floor = tiers[current]["min"]
+        pct = max(0.0, min((points - floor) / (target - floor), 1.0))
+        st.progress(pct)
+        st.caption(f"Progress toward {next_tier} ({points:,} / {target:,} pts)")
+    else:
+        st.progress(1.0)
+        st.caption("You're at the top tier — Platinum")
 
 show()

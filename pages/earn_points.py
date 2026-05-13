@@ -22,10 +22,15 @@ def show():
         if st.button("Confirm Flight & Earn Points", type="primary", use_container_width=True):
             add_transaction(user, f"Flight ({distance}km)", points)
             users = load_users()
-            users[st.session_state.current_user["name"].lower().split()[0]] = user  # simple key match
-            save_users(users)
-            st.success(f"✅ {points} points added! New balance: {user['points']:,}")
-            st.rerun()
+            # use the login key stored at sign-in (display name parsing was fragile)
+            users[st.session_state.current_username] = user
+            if not save_users(users):
+                st.error("❌ Could not save your transaction. Please try again.")
+            else:
+                # keep sidebar in sync with the saved balance
+                st.session_state.current_user = user
+                st.success(f"✅ {points} points added! New balance: {user['points']:,}")
+                st.rerun()
 
     else:  # Partner Purchase
         amount = st.number_input("Purchase amount ($)", min_value=10, value=120)
@@ -35,10 +40,14 @@ def show():
         if st.button("Confirm Purchase & Earn Points", type="primary", use_container_width=True):
             add_transaction(user, "Partner purchase", points)
             users = load_users()
-            users[st.session_state.current_user["name"].lower().split()[0]] = user
-            save_users(users)
-            st.success(f"✅ {points} points added! New balance: {user['points']:,}")
-            st.rerun()
+            users[st.session_state.current_username] = user
+            if not save_users(users):
+                st.error("❌ Could not save your transaction. Please try again.")
+            else:
+                # keep sidebar in sync with the saved balance
+                st.session_state.current_user = user
+                st.success(f"✅ {points} points added! New balance: {user['points']:,}")
+                st.rerun()
 
     st.caption("Points are calculated based on your current tier multiplier.")
 

@@ -13,8 +13,9 @@ def show():
 
     if transactions:
         for tx in reversed(transactions):
-            sign = "🟢 +" if tx["points"] > 0 else "🔴 "
-            st.write(f"{tx['date']} — {sign}{tx['points']} pts — {tx['description']}")
+            # {:+,} gives a leading +/- and thousands separator in one shot
+            dot = "🟢" if tx["points"] > 0 else "🔴"
+            st.write(f"{tx['date']} — {dot} {tx['points']:+,} pts — {tx['description']}")
     else:
         st.info("No transactions yet.")
 

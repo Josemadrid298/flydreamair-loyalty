@@ -48,6 +48,8 @@ if not st.session_state.logged_in:
             users = load_users()
             if username in users and users[username].get("password") == password:
                 st.session_state.logged_in = True
+                # remember the JSON key so saves don't depend on parsing the display name
+                st.session_state.current_username = username
                 st.session_state.current_user = users[username].copy()
                 st.success(f"✅ Welcome back, {users[username]['name']}!")
                 st.rerun()
@@ -69,6 +71,7 @@ else:
     if st.sidebar.button("Logout", key="logout_button", use_container_width=True):
         st.session_state.logged_in = False
         st.session_state.current_user = None
+        st.session_state.current_username = None
         st.rerun()
 
     st.sidebar.divider()

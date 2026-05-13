@@ -34,7 +34,8 @@ def show():
 
             if st.button(
                 f"Redeem {reward.split()[0]}",
-                key=reward,
+                # index-based key avoids collisions if reward names contain duplicates/special chars
+                key=f"redeem_{idx}",
                 use_container_width=True,
                 disabled=not can_afford        # greys out the button if unaffordable
             ):
@@ -42,13 +43,16 @@ def show():
                 if user.get("points", 0) < cost:
                     st.error(f"❌ Not enough points! You need {cost:,} pts but only have {user['points']:,} pts.")
                 else:
-                    user["points"] -= cost
+                    # add_transaction handles the deduction; do not subtract here (was double-deducting)
                     add_transaction(user, f"Redeemed: {reward}", -cost)
                     users = load_users()
-                    users[st.session_state.current_user["name"].lower().split()[0]] = user
-                    save_users(users)
-                    st.session_state.current_user = user  # keep session state in sync
-                    st.success(f"🎉 {reward} redeemed successfully!")
-                    st.rerun()
+                    # use the login key stored at sign-in (display name parsing was fragile)
+                    users[st.session_state.current_username] = user
+                    if not save_users(users):
+                        st.error("❌ Could not save your redemption. Please try again.")
+                    else:
+                        st.session_state.current_user = user  # keep session state in sync
+                        st.success(f"🎉 {reward} redeemed successfully!")
+                        st.rerun()
 
 show()

@@ -18,7 +18,8 @@ points   = user.get("points", 0)
 tier     = user.get("tier", "Bronze")
 name     = user.get("name", "Traveller")
 t_cfg    = TIER_CONFIG.get(tier, TIER_CONFIG["Bronze"])
-history  = user.get("history", [])
+# transactions is the source of truth; "history" was legacy seed data and is no longer written to
+history  = user.get("transactions", [])
 
 # ====================== HEADER ======================
 st.title(f"👋 Welcome back, {name}!")
@@ -49,11 +50,12 @@ st.divider()
 # ====================== TIER BENEFITS SUMMARY ======================
 st.markdown("### 🏅 Your Tier Benefits")
 
+# wording matches the actual multipliers in utils.calculate_points (1.0 / 1.5 / 2.0 / 3.0)
 BENEFITS = {
-    "Bronze":   ["5% bonus points on flights", "Birthday bonus points", "Member newsletter"],
-    "Silver":   ["10% bonus points on flights", "Priority check-in", "1 free lounge pass/year", "Birthday double points"],
-    "Gold":     ["20% bonus points on flights", "Unlimited lounge access", "Priority boarding", "Free seat upgrades (when available)", "Dedicated support line"],
-    "Platinum": ["50% bonus points on all spend", "Guaranteed upgrades", "Unlimited guest lounge passes", "Personal travel concierge", "Annual gift (5,000 bonus pts)"],
+    "Bronze":   ["1× points on flights", "Birthday bonus points", "Member newsletter"],
+    "Silver":   ["1.5× points (50% bonus)", "Priority check-in", "1 free lounge pass/year", "Birthday double points"],
+    "Gold":     ["2× points (100% bonus)", "Unlimited lounge access", "Priority boarding", "Free seat upgrades (when available)", "Dedicated support line"],
+    "Platinum": ["3× points (200% bonus)", "Guaranteed upgrades", "Unlimited guest lounge passes", "Personal travel concierge", "Annual gift (5,000 bonus pts)"],
 }
 
 benefits = BENEFITS.get(tier, [])
